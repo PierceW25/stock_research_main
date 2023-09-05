@@ -3,6 +3,7 @@ package com.backend.stock_research_main;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.sql.DataSource;
 
@@ -32,7 +33,7 @@ public class WatchlistServices {
 
     @CrossOrigin(origins = "http://localhost:4200")
     @GetMapping(path = "/userWatchlists/{email}")
-    public WatchlistsContainer getAllWatchlistData(@PathVariable String email) {
+    public ResponseEntity<WatchlistsContainer> getAllWatchlistData(@PathVariable String email) {
         final DataSource datasource = createDataSource();
         WatchlistsContainer watchlistsContainer = new WatchlistsContainer();
         try {
@@ -44,15 +45,53 @@ public class WatchlistServices {
                 watchlistsContainer.setWatchlist_one_title(returnedRows.getString("watchlist_one_title"));
                 watchlistsContainer.setWatchlist_two_title(returnedRows.getString("watchlist_two_title"));
                 watchlistsContainer.setWatchlist_three_title(returnedRows.getString("watchlist_three_title"));
-                watchlistsContainer.setWatchlist_one(returnedRows.getString("watchlist_one").replace("{", "").replace("}", ""));
-                watchlistsContainer.setWatchlist_two(returnedRows.getString("watchlist_two").replace("{", "").replace("}", ""));
-                watchlistsContainer.setWatchlist_three(returnedRows.getString("watchlist_three").replace("{", "").replace("}", ""));
                 watchlistsContainer.setSelected_watchlist(returnedRows.getString("selected_list"));
+                
+                String[] watchlist_one = returnedRows.getString("watchlist_one")
+                .replaceAll("\\{|\\}", "")
+                .split("\\s*,\\s*");
+                String watchlist_two[] = returnedRows.getString("watchlist_two")
+                .replaceAll("\\{|\\}", "")
+                .split("\\s*,\\s*");
+                String[] watchlist_three = returnedRows.getString("watchlist_three")
+                .replaceAll("\\{|\\}", "")
+                .split("\\s*,\\s*");
+
+                List<String> watchlist_one_array = new ArrayList<>();
+                List<String> watchlist_two_array = new ArrayList<>();
+                List<String> watchlist_three_array = new ArrayList<>();
+
+                for (String item : watchlist_one) {
+                    String trimmedItem = item.trim();
+                    if (!trimmedItem.equals("")) {
+                        watchlist_one_array.add(trimmedItem);
+                    }
+                }
+
+                for (String item : watchlist_two) {
+                    String trimmedItem = item.trim();
+                    if (!trimmedItem.equals("")) {
+                        watchlist_two_array.add(trimmedItem);
+                    }
+                }
+
+                for (String item : watchlist_three) {
+                    String trimmedItem = item.trim();
+                    if (!trimmedItem.equals("")) {
+                        watchlist_three_array.add(trimmedItem);
+                    }
+                }
+
+                watchlistsContainer.setWatchlist_one(watchlist_one_array);
+                watchlistsContainer.setWatchlist_two(watchlist_two_array);
+                watchlistsContainer.setWatchlist_three(watchlist_three_array);
             }
+
+            System.out.println(watchlistsContainer.getWatchlist_one());
         } catch (Exception e) {
             System.out.println(e);
         }
-        return watchlistsContainer;
+        return new ResponseEntity<>(watchlistsContainer, HttpStatus.OK);
     }
 
     //POST METHODS FOR ALL WATCHLISTS
