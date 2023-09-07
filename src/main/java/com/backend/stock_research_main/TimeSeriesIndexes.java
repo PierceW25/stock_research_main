@@ -12,6 +12,7 @@ import javax.sql.DataSource;
 
 import org.postgresql.ds.PGSimpleDataSource;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,11 +26,14 @@ import com.backend.stock_research_main.stockObjects.HistoricalPriceData;
 import com.backend.stock_research_main.stockObjects.TimeSeriesResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@SpringBootApplication
 @RestController
 public class TimeSeriesIndexes {
 
     public static void main(String[] args) {
         SpringApplication.run(TimeSeriesIndexes.class, args);
+        updateIntradayData();
+        updateTimeSeriesData();
     }
 
     public static DataSource createDataSource() {
@@ -42,7 +46,7 @@ public class TimeSeriesIndexes {
     public static void updateIntradayData() {
         final DataSource dataSource = createDataSource();
         String currentDateTime = java.time.Clock.systemUTC().instant().toString();
-        String[] indexes = {"SPY", "DIA", "QQQM", "VTWO", "NDAQ"};
+        String[] indexes = {"SPY", "DIA", "QQQM", "VTWO", "NDAQ", "AAPL", "MSFT", "GOOG", "AMZN", "NVDA"};
 
         for (String index : indexes) {
             RestTemplate restTemplate = new RestTemplate();
@@ -86,11 +90,24 @@ public class TimeSeriesIndexes {
                 System.out.println(e);
             }
         }
+
+        System.out.println(currentDateTime);
+
+        try {
+            Connection conn = dataSource.getConnection();
+            conn.prepareStatement(
+                "DELETE FROM index_daily_series_data WHERE datetime_added < " + currentDateTime + ";"
+            ).execute();
+
+            conn.close();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
     }
 
     public static void updateTimeSeriesData() {
         final DataSource dataSource = createDataSource();
-        String[] indexes = {"SPY", "DIA", "QQQM", "VTWO", "NDAQ"};
+        String[] indexes = {"SPY", "DIA", "QQQM", "VTWO", "NDAQ", "AAPL", "MSFT", "GOOG", "AMZN", "NVDA"};
         String currentDateTime = java.time.Clock.systemUTC().instant().toString();
         LocalDate currentDate = LocalDate.now();
         LocalDate oneWeekAgo = currentDate.minusWeeks(1);
@@ -191,6 +208,11 @@ public class TimeSeriesIndexes {
                             "VALUES ('" + dataPoint.getDate() + "', '" + dataPoint.getPrice() + "', '" + dataPoint.getTicker() + "', '" + currentDateTime + "', '" + dataPoint.getSeries() + "');"
                         ).execute();
                     }
+
+                    System.out.println(currentDateTime);
+                    conn.prepareStatement(
+                    "DELETE FROM index_time_series_data WHERE datetime_added < " + currentDateTime + ";"
+                    ).execute();
 
                     conn.close();
                 } catch (Exception e) {
