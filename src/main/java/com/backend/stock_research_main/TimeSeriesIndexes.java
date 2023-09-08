@@ -3,7 +3,10 @@ package com.backend.stock_research_main;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Map;
@@ -45,7 +48,9 @@ public class TimeSeriesIndexes {
     
     public static void updateIntradayData() {
         final DataSource dataSource = createDataSource();
-        String currentDateTime = java.time.Clock.systemUTC().instant().toString();
+        Instant currentInstant = Clock.systemUTC().instant();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
+        String currentDateTime = formatter.format(currentInstant.atZone(ZoneId.of("UTC")));
         String[] indexes = {"SPY", "DIA", "QQQM", "VTWO", "NDAQ", "AAPL", "MSFT", "GOOG", "AMZN", "NVDA"};
 
         for (String index : indexes) {
@@ -90,15 +95,13 @@ public class TimeSeriesIndexes {
                 System.out.println(e);
             }
         }
-
-        System.out.println(currentDateTime);
-
+    
         try {
             Connection conn = dataSource.getConnection();
-            conn.prepareStatement(
-                "DELETE FROM index_daily_series_data WHERE datetime_added < " + currentDateTime + ";"
-            ).execute();
+            PreparedStatement deleteStatement = conn.prepareStatement("DELETE FROM index_daily_series_data WHERE datetime_added::timestamp without time zone <> ?::timestamp without time zone");
 
+            deleteStatement.setString(1, currentDateTime);
+            deleteStatement.execute();
             conn.close();
         } catch (Exception e) {
             System.out.println(e);
@@ -108,7 +111,9 @@ public class TimeSeriesIndexes {
     public static void updateTimeSeriesData() {
         final DataSource dataSource = createDataSource();
         String[] indexes = {"SPY", "DIA", "QQQM", "VTWO", "NDAQ", "AAPL", "MSFT", "GOOG", "AMZN", "NVDA"};
-        String currentDateTime = java.time.Clock.systemUTC().instant().toString();
+        Instant currentInstant = Clock.systemUTC().instant();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
+        String currentDateTime = formatter.format(currentInstant.atZone(ZoneId.of("UTC")));
         LocalDate currentDate = LocalDate.now();
         LocalDate oneWeekAgo = currentDate.minusWeeks(1);
         LocalDate oneMonthAgo = currentDate.minusMonths(1);
@@ -209,10 +214,9 @@ public class TimeSeriesIndexes {
                         ).execute();
                     }
 
-                    System.out.println(currentDateTime);
-                    conn.prepareStatement(
-                    "DELETE FROM index_time_series_data WHERE datetime_added < " + currentDateTime + ";"
-                    ).execute();
+                    PreparedStatement deleteStatement = conn.prepareStatement("DELETE FROM index_time_series_data WHERE datetime_added::timestamp without time zone <> ?::timestamp without time zone");
+                    deleteStatement.setString(1, currentDateTime);
+                    deleteStatement.execute();
 
                     conn.close();
                 } catch (Exception e) {
