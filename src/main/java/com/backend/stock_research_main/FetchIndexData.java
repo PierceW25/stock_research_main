@@ -41,7 +41,7 @@ public class FetchIndexData {
     public static void fetchAndStoreIndexDailyData() {
         final DataSource datasource = createDataSource();
 
-        String[][] indexes = {{"SPY", "S&P 500"}, {"DIA", "Dow Jones"}, {"QQQM", "QQQ"}, {"VTWO", "Russel 2000"}, {"NDAQ", "Nasdaq"}};
+        String[][] indexes = {{"SPY", "S&P 500"}, {"DIA", "Dow Jones"}, {"QQQM", "QQQ"}, {"VTWO", "Russel 2000"}, {"NDAQ", "Nasdaq"}, {"AAPL", "Apple"}, {"MSFT", "Microsoft"}, {"GOOG", "Alphabet"}, {"AMZN", "Amazon"}, {"NVDA", "Nvidia"}};
         Timestamp timeRecordAdded = new Timestamp(System.currentTimeMillis());
         //Get Data for all indexes
         for (String[] index : indexes) {
@@ -77,7 +77,12 @@ public class FetchIndexData {
 
                     insertDailyInfo.executeUpdate();
 
-                    conn.commit();
+                    PreparedStatement deleteOldData = conn.prepareStatement(
+                        "DELETE FROM indexes_data WHERE datetime_added::timestamp without time zone <> ?::timestamp without time zone"
+                    );
+                    deleteOldData.setTimestamp(1, timeRecordAdded);
+                    deleteOldData.executeUpdate();
+
                     conn.close();
 
                 } catch (Exception e) {
@@ -102,7 +107,7 @@ public class FetchIndexData {
         try {
             Connection conn = datasource.getConnection();
             PreparedStatement getAllIndexes = conn.prepareStatement(
-                "SELECT * FROM indexes_data order by datetime_added desc limit 5"
+                "SELECT * FROM indexes_data order by datetime_added desc limit 10"
             );
             ResultSet allIndexes = getAllIndexes.executeQuery();
             while (allIndexes.next()) {

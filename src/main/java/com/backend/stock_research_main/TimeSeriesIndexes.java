@@ -233,7 +233,7 @@ public class TimeSeriesIndexes {
     @GetMapping("/indexes_time_series_data")
     public static CustomIndexDataContainer[] getIndexTimeSeries() {
         final DataSource dataSource = createDataSource();
-        String[] indexes = {"SPY", "DIA", "QQQM", "VTWO", "NDAQ"};
+        String[] indexes = {"SPY", "DIA", "QQQM", "VTWO", "NDAQ", "AAPL", "MSFT", "GOOG", "AMZN", "NVDA"};
 
         ArrayList<CustomIndexDataContainer> allIndexData = new ArrayList<CustomIndexDataContainer>();
 
@@ -302,6 +302,12 @@ public class TimeSeriesIndexes {
             conn.close();
         } catch (Exception e) {
             System.out.println(e);
+        }
+
+        CustomIndexDataContainer[] testArray = allIndexData.toArray(new CustomIndexDataContainer[allIndexData.size()]);
+
+        for (CustomIndexDataContainer index : testArray) {
+            System.out.println(index.getTicker());
         }
 
         return allIndexData.toArray(new CustomIndexDataContainer[allIndexData.size()]);
