@@ -304,12 +304,6 @@ public class TimeSeriesIndexes {
             System.out.println(e);
         }
 
-        CustomIndexDataContainer[] testArray = allIndexData.toArray(new CustomIndexDataContainer[allIndexData.size()]);
-
-        for (CustomIndexDataContainer index : testArray) {
-            System.out.println(index.getTicker());
-        }
-
         return allIndexData.toArray(new CustomIndexDataContainer[allIndexData.size()]);
     }
 }
