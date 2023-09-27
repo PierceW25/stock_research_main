@@ -4,22 +4,22 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true) 
-public class GdpResponse {
+public class DateValueResponse {
     @JsonAlias("data")
-    private QuartersGdp[] allQuartersGDP;
+    private QuartersDateValue[] allQuartersGDP;
 
-    public GdpResponse() {
+    public DateValueResponse() {
     }
 
-    public GdpResponse(QuartersGdp[] allQuartersGDP) {
+    public DateValueResponse(QuartersDateValue[] allQuartersGDP) {
         this.allQuartersGDP = allQuartersGDP;
     }
 
-    public QuartersGdp[] getAllQuartersGDP() {
+    public QuartersDateValue[] getAllQuartersGDP() {
         return this.allQuartersGDP;
     }
 
-    public void setAllQuartersGDP(QuartersGdp[] allQuartersGDP) {
+    public void setAllQuartersGDP(QuartersDateValue[] allQuartersGDP) {
         this.allQuartersGDP = allQuartersGDP;
     }
 }

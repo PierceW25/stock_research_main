@@ -1,13 +1,13 @@
 package com.backend.stock_research_main.indicatorsObjects;
 
-public class QuartersGdp {
+public class QuartersDateValue {
     private String date;
     private String value;
 
-    public QuartersGdp() {
+    public QuartersDateValue() {
     }
 
-    public QuartersGdp(String date, String value) {
+    public QuartersDateValue(String date, String value) {
         this.date = date;
         this.value = value;
     }
