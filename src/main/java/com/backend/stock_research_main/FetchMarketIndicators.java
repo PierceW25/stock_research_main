@@ -153,6 +153,7 @@ public class FetchMarketIndicators {
             System.out.println(e);
         }
 
+        //Getting fed funds rate data
         ResponseEntity<String> fedFundsRateDate = restTemplate.getForEntity(
             "https://www.alphavantage.co/query?function=FEDERAL_FUNDS_RATE&interval=monthly&apikey=HGP8743EDTZFQ8HO",
             String.class
@@ -184,6 +185,7 @@ public class FetchMarketIndicators {
             }
 
             allIndicators.add(fedFundsRate);
+
         } catch (Exception e) {
             System.out.println(e);
         }

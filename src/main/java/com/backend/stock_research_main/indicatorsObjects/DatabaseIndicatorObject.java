@@ -17,6 +17,9 @@ public class DatabaseIndicatorObject {
         this.timeframe = timeframe;
     }
 
+    public DatabaseIndicatorObject() {
+    }
+
     public String getIndicator() {
         return indicator;
     }
