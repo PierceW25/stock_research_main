@@ -125,6 +125,69 @@ public class FetchMarketIndicators {
             System.out.println(e);
         }
 
+        //Getting unemployment rate
+        ResponseEntity<String> unemploymentData = restTemplate.getForEntity(
+            "https://www.alphavantage.co/query?function=UNEMPLOYMENT&interval=monthly&apikey=HGP8743EDTZFQ8HO",
+            String.class
+        );
+        String fullUnemploymentResponse = unemploymentData.getBody();
+        ObjectMapper mapper3 = new ObjectMapper();
+
+        try {
+            DateValueResponse unemploymentResponse = mapper3.readValue(fullUnemploymentResponse, DateValueResponse.class);
+            QuartersDateValue[] allUnemploymentQuarters = unemploymentResponse.getAllQuartersGDP();
+
+            double mostRecentUnemployment = Float.parseFloat(allUnemploymentQuarters[0].getValue());
+
+            DatabaseIndicatorObject unemployment;
+            if (mostRecentUnemployment < 3.00 || mostRecentUnemployment > 7.00) {
+                unemployment = new DatabaseIndicatorObject("Unemployment", mostRecentUnemployment, "red", dateRecordAdded, "monthly");
+            } else if (mostRecentUnemployment < 4.00 || mostRecentUnemployment > 6.00) {
+                unemployment = new DatabaseIndicatorObject("Unemployment", mostRecentUnemployment, "yellow", dateRecordAdded, "monthly");
+            } else {
+                unemployment = new DatabaseIndicatorObject("Unemployment", mostRecentUnemployment, "green", dateRecordAdded, "monthly");
+            }
+            
+            allIndicators.add(unemployment);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+        ResponseEntity<String> fedFundsRateDate = restTemplate.getForEntity(
+            "https://www.alphavantage.co/query?function=FEDERAL_FUNDS_RATE&interval=monthly&apikey=HGP8743EDTZFQ8HO",
+            String.class
+        );
+        String fullFedFundsRateResponse = fedFundsRateDate.getBody();
+        ObjectMapper mapper4 = new ObjectMapper();
+
+        try {
+            DateValueResponse fedFundsRateResponse = mapper4.readValue(fullFedFundsRateResponse, DateValueResponse.class);
+            QuartersDateValue[] allFedFundsRateQuarters = fedFundsRateResponse.getAllQuartersGDP();
+            double lastSevenYearsSum = 0.00;
+            double lastSevenYearsAvg = 0.00;
+
+            for (int i = 0; i < 84; i++) {
+                lastSevenYearsSum += Float.parseFloat(allFedFundsRateQuarters[i].getValue());
+            }
+
+            lastSevenYearsAvg = lastSevenYearsSum / 84;
+
+            DatabaseIndicatorObject fedFundsRate;
+            double currentFedFundsRate = Float.parseFloat(allFedFundsRateQuarters[0].getValue());
+            double previousFedFundsRate = Float.parseFloat(allFedFundsRateQuarters[1].getValue());
+            if (currentFedFundsRate > lastSevenYearsAvg) {
+                fedFundsRate = new DatabaseIndicatorObject("Fed Funds Rate", currentFedFundsRate, "red", dateRecordAdded, "monthly");
+            } else if (currentFedFundsRate > previousFedFundsRate + .1) {
+                fedFundsRate = new DatabaseIndicatorObject("Fed Funds Rate", currentFedFundsRate, "yellow", dateRecordAdded, "monthly");
+            } else {
+                fedFundsRate = new DatabaseIndicatorObject("Fed Funds Rate", currentFedFundsRate, "green", dateRecordAdded, "monthly");
+            }
+
+            allIndicators.add(fedFundsRate);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
         for (DatabaseIndicatorObject indicator : allIndicators) {
             try {
                 final Connection connection = datasource.getConnection();
