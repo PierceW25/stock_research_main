@@ -56,25 +56,25 @@ public class FetchMarketIndicators {
             QuartersDateValue secondMostRecentQuarter = allQuartersGDP[1];
             QuartersDateValue oneYearAgosQuarter = allQuartersGDP[4];
 
-            double QuarterlyChange = (Float.parseFloat(mostRecentQuarter.getValue()) / Float.parseFloat(secondMostRecentQuarter.getValue()) - 1) * 100;
-            double YearlyChange = (Float.parseFloat(mostRecentQuarter.getValue()) / Float.parseFloat(oneYearAgosQuarter.getValue()) - 1) * 100;
+            double QuarterlyChange = Math.round(((Float.parseFloat(mostRecentQuarter.getValue()) / Float.parseFloat(secondMostRecentQuarter.getValue()) - 1) * 100) * 100.0) / 100.0;
+            double YearlyChange = Math.round(((Float.parseFloat(mostRecentQuarter.getValue()) / Float.parseFloat(oneYearAgosQuarter.getValue()) - 1) * 100) * 100.0) / 100.0;
 
             DatabaseIndicatorObject quarterlyGdp;
             if (QuarterlyChange > 2.00) {
-                quarterlyGdp = new DatabaseIndicatorObject("GDP", QuarterlyChange, "green", dateRecordAdded, "quarterly");
+                quarterlyGdp = new DatabaseIndicatorObject("GDP - Quarter's Change", QuarterlyChange, "green", dateRecordAdded, "quarterly");
             } else if (QuarterlyChange < 2.00 && QuarterlyChange > 0.00) {
-                quarterlyGdp = new DatabaseIndicatorObject("GDP", QuarterlyChange, "yellow", dateRecordAdded, "quarterly");
+                quarterlyGdp = new DatabaseIndicatorObject("GDP - Quarter's Change", QuarterlyChange, "yellow", dateRecordAdded, "quarterly");
             } else {
-                quarterlyGdp = new DatabaseIndicatorObject("GDP", QuarterlyChange, "red", dateRecordAdded, "quarterly");
+                quarterlyGdp = new DatabaseIndicatorObject("GDP - Quarter's Change", QuarterlyChange, "red", dateRecordAdded, "quarterly");
             }
 
             DatabaseIndicatorObject yearlyGdp;
             if (YearlyChange > 2.00) {
-                yearlyGdp = new DatabaseIndicatorObject("GDP", YearlyChange, "green", dateRecordAdded, "yearly");
+                yearlyGdp = new DatabaseIndicatorObject("GDP - Annual Change", YearlyChange, "green", dateRecordAdded, "yearly");
             } else if (YearlyChange < 2.00 && YearlyChange > 0.00) {
-                yearlyGdp = new DatabaseIndicatorObject("GDP", YearlyChange, "yellow", dateRecordAdded, "yearly");
+                yearlyGdp = new DatabaseIndicatorObject("GDP - Annual Change", YearlyChange, "yellow", dateRecordAdded, "yearly");
             } else {
-                yearlyGdp = new DatabaseIndicatorObject("GDP", YearlyChange, "red", dateRecordAdded, "yearly");
+                yearlyGdp = new DatabaseIndicatorObject("GDP - Annual Change", YearlyChange, "red", dateRecordAdded, "yearly");
             }
 
             allIndicators.add(quarterlyGdp);
@@ -100,23 +100,23 @@ public class FetchMarketIndicators {
             QuartersDateValue secondMostRecentCpi = allCpiQuarters[1];
             QuartersDateValue oneYearAgosCpi = allCpiQuarters[12];
 
-            double monthlyChange = (Float.parseFloat(mostRecentCpi.getValue()) / Float.parseFloat(secondMostRecentCpi.getValue()) - 1) * 100;
-            double yearlyChange = (Float.parseFloat(mostRecentCpi.getValue()) / Float.parseFloat(oneYearAgosCpi.getValue()) - 1) * 100;
+            double monthlyChange = Math.round(((Float.parseFloat(mostRecentCpi.getValue()) / Float.parseFloat(secondMostRecentCpi.getValue()) - 1) * 100) * 100.0) / 100.0 ;
+            double yearlyChange = Math.round(((Float.parseFloat(mostRecentCpi.getValue()) / Float.parseFloat(oneYearAgosCpi.getValue()) - 1) * 100) * 100.0) / 100.0;
 
             DatabaseIndicatorObject monthlyCpi;
             if (monthlyChange > 0.00) {
-                monthlyCpi = new DatabaseIndicatorObject("CPI", monthlyChange, "red", dateRecordAdded, "monthly");
+                monthlyCpi = new DatabaseIndicatorObject("CPI - Month's Change", monthlyChange, "red", dateRecordAdded, "monthly");
             } else {
-                monthlyCpi = new DatabaseIndicatorObject("CPI", monthlyChange, "green", dateRecordAdded, "monthly");
+                monthlyCpi = new DatabaseIndicatorObject("CPI - Month's Change", monthlyChange, "green", dateRecordAdded, "monthly");
             }
 
             DatabaseIndicatorObject yearlyCpi;
             if (yearlyChange > 3.00) {
-                yearlyCpi = new DatabaseIndicatorObject("CPI", yearlyChange, "red", dateRecordAdded, "yearly");
+                yearlyCpi = new DatabaseIndicatorObject("CPI - Annual Change", yearlyChange, "red", dateRecordAdded, "yearly");
             } else if (yearlyChange <= 3.00 && yearlyChange > 2.00) {
-                yearlyCpi = new DatabaseIndicatorObject("CPI", yearlyChange, "yellow", dateRecordAdded, "yearly");
+                yearlyCpi = new DatabaseIndicatorObject("CPI - Annual Change", yearlyChange, "yellow", dateRecordAdded, "yearly");
             } else {
-                yearlyCpi = new DatabaseIndicatorObject("CPI", yearlyChange, "green", dateRecordAdded, "yearly");
+                yearlyCpi = new DatabaseIndicatorObject("CPI - Annual Change", yearlyChange, "green", dateRecordAdded, "yearly");
             }
 
             allIndicators.add(monthlyCpi);
@@ -137,15 +137,15 @@ public class FetchMarketIndicators {
             DateValueResponse unemploymentResponse = mapper3.readValue(fullUnemploymentResponse, DateValueResponse.class);
             QuartersDateValue[] allUnemploymentQuarters = unemploymentResponse.getAllQuartersGDP();
 
-            double mostRecentUnemployment = Float.parseFloat(allUnemploymentQuarters[0].getValue());
+            double mostRecentUnemployment = Math.round((Float.parseFloat(allUnemploymentQuarters[0].getValue())) * 100.0) / 100.0;
 
             DatabaseIndicatorObject unemployment;
             if (mostRecentUnemployment < 3.00 || mostRecentUnemployment > 7.00) {
-                unemployment = new DatabaseIndicatorObject("Unemployment", mostRecentUnemployment, "red", dateRecordAdded, "monthly");
+                unemployment = new DatabaseIndicatorObject("Unemployment Rate", mostRecentUnemployment, "red", dateRecordAdded, "monthly");
             } else if (mostRecentUnemployment < 4.00 || mostRecentUnemployment > 6.00) {
-                unemployment = new DatabaseIndicatorObject("Unemployment", mostRecentUnemployment, "yellow", dateRecordAdded, "monthly");
+                unemployment = new DatabaseIndicatorObject("Unemployment Rate", mostRecentUnemployment, "yellow", dateRecordAdded, "monthly");
             } else {
-                unemployment = new DatabaseIndicatorObject("Unemployment", mostRecentUnemployment, "green", dateRecordAdded, "monthly");
+                unemployment = new DatabaseIndicatorObject("Unemployment Rate", mostRecentUnemployment, "green", dateRecordAdded, "monthly");
             }
             
             allIndicators.add(unemployment);
@@ -174,8 +174,9 @@ public class FetchMarketIndicators {
             lastSevenYearsAvg = lastSevenYearsSum / 84;
 
             DatabaseIndicatorObject fedFundsRate;
-            double currentFedFundsRate = Float.parseFloat(allFedFundsRateQuarters[0].getValue());
+            double currentFedFundsRate = Math.round((Float.parseFloat(allFedFundsRateQuarters[0].getValue())) * 100.0) / 100.0;
             double previousFedFundsRate = Float.parseFloat(allFedFundsRateQuarters[1].getValue());
+
             if (currentFedFundsRate > lastSevenYearsAvg) {
                 fedFundsRate = new DatabaseIndicatorObject("Fed Funds Rate", currentFedFundsRate, "red", dateRecordAdded, "monthly");
             } else if (currentFedFundsRate > previousFedFundsRate + .1) {

@@ -59,7 +59,6 @@ public class MarketIndicatorsEndpoint {
             formattedIndicators.setUnemploymentRate(indicators.get(5));
 
             if (!formattedIndicators.equals(null)) {
-                System.out.println("Market indicators found");
                 return new ResponseEntity<>(formattedIndicators, HttpStatus.OK);
             } else {
                 System.out.println("No market indicators found");
