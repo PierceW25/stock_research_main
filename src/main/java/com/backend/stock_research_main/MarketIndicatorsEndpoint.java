@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.stock_research_main.indicatorsObjects.DatabaseIndicatorObject;
+import com.backend.stock_research_main.indicatorsObjects.IndicatorsContainer;
 
 @RestController
 public class MarketIndicatorsEndpoint {
@@ -29,7 +30,7 @@ public class MarketIndicatorsEndpoint {
 
     @CrossOrigin(origins = "http://localhost:4200")
     @GetMapping(path = "/marketIndicators", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DatabaseIndicatorObject[]> getMarketIndicators() {
+    public ResponseEntity<IndicatorsContainer> getMarketIndicators() {
         final DataSource dataSource = createDataSource();
         ArrayList<DatabaseIndicatorObject> indicators = new ArrayList<DatabaseIndicatorObject>();
         try {
@@ -49,10 +50,18 @@ public class MarketIndicatorsEndpoint {
                 }
             }
 
-            DatabaseIndicatorObject[] indicatorsArray = new DatabaseIndicatorObject[indicators.size()];
+            IndicatorsContainer formattedIndicators = new IndicatorsContainer();
+            formattedIndicators.setQuarterlyGDP(indicators.get(0));
+            formattedIndicators.setAnnualGDP(indicators.get(1));
+            formattedIndicators.setUnemploymentRate(indicators.get(4));
+            formattedIndicators.setFedFundsRate(indicators.get(5));
+            formattedIndicators.setQuarterlyCPI(indicators.get(2));
+            formattedIndicators.setAnnualCPI(indicators.get(3));
 
-            if (indicators.size() > 4) {
-                return new ResponseEntity<>(indicatorsArray, HttpStatus.OK);
+            if (!formattedIndicators.equals(null)) {
+                System.out.println("Market indicators found");
+                System.out.println(formattedIndicators);
+                return new ResponseEntity<>(formattedIndicators, HttpStatus.OK);
             } else {
                 System.out.println("No market indicators found");
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
