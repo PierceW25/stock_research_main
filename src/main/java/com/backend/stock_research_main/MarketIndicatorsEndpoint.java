@@ -35,14 +35,14 @@ public class MarketIndicatorsEndpoint {
         ArrayList<DatabaseIndicatorObject> indicators = new ArrayList<DatabaseIndicatorObject>();
         try {
             final Connection connection = dataSource.getConnection();
-            PreparedStatement sql = connection.prepareStatement("SELECT * FROM market_indicators");
+            PreparedStatement sql = connection.prepareStatement("SELECT * FROM market_indicators order by indicator, timeframe asc");
             ResultSet returnedRows = sql.executeQuery();
 
             while (returnedRows.next()) {
                 DatabaseIndicatorObject indicator = new DatabaseIndicatorObject();
                 indicator.setIndicator(returnedRows.getString("indicator"));
                 indicator.setValue(Float.parseFloat(returnedRows.getString("value")));
-                indicator.setColor("color");
+                indicator.setColor(returnedRows.getString("color"));
                 indicator.setTimeframe(returnedRows.getString("timeframe"));
 
                 if (!indicator.equals(null)) {
@@ -51,16 +51,15 @@ public class MarketIndicatorsEndpoint {
             }
 
             IndicatorsContainer formattedIndicators = new IndicatorsContainer();
-            formattedIndicators.setQuarterlyGDP(indicators.get(0));
-            formattedIndicators.setAnnualGDP(indicators.get(1));
-            formattedIndicators.setUnemploymentRate(indicators.get(4));
-            formattedIndicators.setFedFundsRate(indicators.get(5));
-            formattedIndicators.setQuarterlyCPI(indicators.get(2));
-            formattedIndicators.setAnnualCPI(indicators.get(3));
+            formattedIndicators.setMonthlyCPI(indicators.get(0));
+            formattedIndicators.setAnnualCPI(indicators.get(1));
+            formattedIndicators.setFedFundsRate(indicators.get(2));
+            formattedIndicators.setQuarterlyGDP(indicators.get(3));
+            formattedIndicators.setAnnualGDP(indicators.get(4));
+            formattedIndicators.setUnemploymentRate(indicators.get(5));
 
             if (!formattedIndicators.equals(null)) {
                 System.out.println("Market indicators found");
-                System.out.println(formattedIndicators);
                 return new ResponseEntity<>(formattedIndicators, HttpStatus.OK);
             } else {
                 System.out.println("No market indicators found");

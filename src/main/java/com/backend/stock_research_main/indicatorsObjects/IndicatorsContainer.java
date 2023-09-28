@@ -5,15 +5,15 @@ public class IndicatorsContainer {
     private DatabaseIndicatorObject annualGDP;
     private DatabaseIndicatorObject unemploymentRate;
     private DatabaseIndicatorObject fedFundsRate;
-    private DatabaseIndicatorObject quarterlyCPI;
+    private DatabaseIndicatorObject monthlyCPI;
     private DatabaseIndicatorObject annualCPI;
 
-    public IndicatorsContainer(DatabaseIndicatorObject quarterlyGDP, DatabaseIndicatorObject annualGDP, DatabaseIndicatorObject unemploymentRate, DatabaseIndicatorObject fedFundsRate, DatabaseIndicatorObject quarterlyCPI, DatabaseIndicatorObject annualCPI) {
+    public IndicatorsContainer(DatabaseIndicatorObject quarterlyGDP, DatabaseIndicatorObject annualGDP, DatabaseIndicatorObject unemploymentRate, DatabaseIndicatorObject fedFundsRate, DatabaseIndicatorObject monthlyCPI, DatabaseIndicatorObject annualCPI) {
         this.quarterlyGDP = quarterlyGDP;
         this.annualGDP = annualGDP;
         this.unemploymentRate = unemploymentRate;
         this.fedFundsRate = fedFundsRate;
-        this.quarterlyCPI = quarterlyCPI;
+        this.monthlyCPI = monthlyCPI;
         this.annualCPI = annualCPI;
     }
 
@@ -32,8 +32,8 @@ public class IndicatorsContainer {
     public DatabaseIndicatorObject getFedFundsRate() {
         return fedFundsRate;
     }
-    public DatabaseIndicatorObject getQuarterlyCPI() {
-        return quarterlyCPI;
+    public DatabaseIndicatorObject getMonthlyCPI() {
+        return monthlyCPI;
     }
     public DatabaseIndicatorObject getAnnualCPI() {
         return annualCPI;
@@ -51,8 +51,8 @@ public class IndicatorsContainer {
     public void setFedFundsRate(DatabaseIndicatorObject fedFundsRate) {
         this.fedFundsRate = fedFundsRate;
     }
-    public void setQuarterlyCPI(DatabaseIndicatorObject quarterlyCPI) {
-        this.quarterlyCPI = quarterlyCPI;
+    public void setMonthlyCPI(DatabaseIndicatorObject monthlyCPI) {
+        this.monthlyCPI = monthlyCPI;
     }
     public void setAnnualCPI(DatabaseIndicatorObject annualCPI) {
         this.annualCPI = annualCPI;
