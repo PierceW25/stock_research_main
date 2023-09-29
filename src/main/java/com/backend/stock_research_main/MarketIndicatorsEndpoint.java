@@ -35,7 +35,7 @@ public class MarketIndicatorsEndpoint {
         ArrayList<DatabaseIndicatorObject> indicators = new ArrayList<DatabaseIndicatorObject>();
         try {
             final Connection connection = dataSource.getConnection();
-            PreparedStatement sql = connection.prepareStatement("SELECT * FROM market_indicators order by indicator, timeframe asc");
+            PreparedStatement sql = connection.prepareStatement("SELECT * FROM market_indicators order by indicator asc");
             ResultSet returnedRows = sql.executeQuery();
 
             while (returnedRows.next()) {
@@ -51,11 +51,11 @@ public class MarketIndicatorsEndpoint {
             }
 
             IndicatorsContainer formattedIndicators = new IndicatorsContainer();
-            formattedIndicators.setMonthlyCPI(indicators.get(0));
-            formattedIndicators.setAnnualCPI(indicators.get(1));
+            formattedIndicators.setAnnualCPI(indicators.get(0));
+            formattedIndicators.setMonthlyCPI(indicators.get(1));
             formattedIndicators.setFedFundsRate(indicators.get(2));
-            formattedIndicators.setQuarterlyGDP(indicators.get(3));
-            formattedIndicators.setAnnualGDP(indicators.get(4));
+            formattedIndicators.setAnnualGDP(indicators.get(3));
+            formattedIndicators.setQuarterlyGDP(indicators.get(4));
             formattedIndicators.setUnemploymentRate(indicators.get(5));
 
             if (!formattedIndicators.equals(null)) {
