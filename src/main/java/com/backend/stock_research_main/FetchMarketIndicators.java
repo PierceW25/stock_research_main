@@ -61,20 +61,20 @@ public class FetchMarketIndicators {
 
             DatabaseIndicatorObject quarterlyGdp;
             if (QuarterlyChange > 2.00) {
-                quarterlyGdp = new DatabaseIndicatorObject("GDP - Quarter's Change", QuarterlyChange, "green", dateRecordAdded, "quarterly");
+                quarterlyGdp = new DatabaseIndicatorObject("GDP - Quarter's Change", QuarterlyChange, "lightgreen", dateRecordAdded, "quarterly");
             } else if (QuarterlyChange < 2.00 && QuarterlyChange > 0.00) {
-                quarterlyGdp = new DatabaseIndicatorObject("GDP - Quarter's Change", QuarterlyChange, "yellow", dateRecordAdded, "quarterly");
+                quarterlyGdp = new DatabaseIndicatorObject("GDP - Quarter's Change", QuarterlyChange, "#ffc000", dateRecordAdded, "quarterly");
             } else {
-                quarterlyGdp = new DatabaseIndicatorObject("GDP - Quarter's Change", QuarterlyChange, "red", dateRecordAdded, "quarterly");
+                quarterlyGdp = new DatabaseIndicatorObject("GDP - Quarter's Change", QuarterlyChange, "lightcoral", dateRecordAdded, "quarterly");
             }
 
             DatabaseIndicatorObject yearlyGdp;
             if (YearlyChange > 2.00) {
-                yearlyGdp = new DatabaseIndicatorObject("GDP - Annual Change", YearlyChange, "green", dateRecordAdded, "yearly");
+                yearlyGdp = new DatabaseIndicatorObject("GDP - Annual Change", YearlyChange, "lightgreen", dateRecordAdded, "yearly");
             } else if (YearlyChange < 2.00 && YearlyChange > 0.00) {
-                yearlyGdp = new DatabaseIndicatorObject("GDP - Annual Change", YearlyChange, "yellow", dateRecordAdded, "yearly");
+                yearlyGdp = new DatabaseIndicatorObject("GDP - Annual Change", YearlyChange, "#ffc000", dateRecordAdded, "yearly");
             } else {
-                yearlyGdp = new DatabaseIndicatorObject("GDP - Annual Change", YearlyChange, "red", dateRecordAdded, "yearly");
+                yearlyGdp = new DatabaseIndicatorObject("GDP - Annual Change", YearlyChange, "lightcoral", dateRecordAdded, "yearly");
             }
 
             allIndicators.add(quarterlyGdp);
@@ -105,18 +105,18 @@ public class FetchMarketIndicators {
 
             DatabaseIndicatorObject monthlyCpi;
             if (monthlyChange > 0.00) {
-                monthlyCpi = new DatabaseIndicatorObject("CPI - Month's Change", monthlyChange, "red", dateRecordAdded, "monthly");
+                monthlyCpi = new DatabaseIndicatorObject("CPI - Month's Change", monthlyChange, "lightcoral", dateRecordAdded, "monthly");
             } else {
-                monthlyCpi = new DatabaseIndicatorObject("CPI - Month's Change", monthlyChange, "green", dateRecordAdded, "monthly");
+                monthlyCpi = new DatabaseIndicatorObject("CPI - Month's Change", monthlyChange, "lightgreen", dateRecordAdded, "monthly");
             }
 
             DatabaseIndicatorObject yearlyCpi;
             if (yearlyChange > 3.00) {
-                yearlyCpi = new DatabaseIndicatorObject("CPI - Annual Change", yearlyChange, "red", dateRecordAdded, "yearly");
+                yearlyCpi = new DatabaseIndicatorObject("CPI - Annual Change", yearlyChange, "lightcoral", dateRecordAdded, "yearly");
             } else if (yearlyChange <= 3.00 && yearlyChange > 2.00) {
-                yearlyCpi = new DatabaseIndicatorObject("CPI - Annual Change", yearlyChange, "yellow", dateRecordAdded, "yearly");
+                yearlyCpi = new DatabaseIndicatorObject("CPI - Annual Change", yearlyChange, "#ffc000", dateRecordAdded, "yearly");
             } else {
-                yearlyCpi = new DatabaseIndicatorObject("CPI - Annual Change", yearlyChange, "green", dateRecordAdded, "yearly");
+                yearlyCpi = new DatabaseIndicatorObject("CPI - Annual Change", yearlyChange, "lightgreen", dateRecordAdded, "yearly");
             }
 
             allIndicators.add(monthlyCpi);
@@ -141,11 +141,11 @@ public class FetchMarketIndicators {
 
             DatabaseIndicatorObject unemployment;
             if (mostRecentUnemployment < 3.00 || mostRecentUnemployment > 7.00) {
-                unemployment = new DatabaseIndicatorObject("Unemployment Rate", mostRecentUnemployment, "red", dateRecordAdded, "monthly");
+                unemployment = new DatabaseIndicatorObject("Unemployment Rate", mostRecentUnemployment, "lightcoral", dateRecordAdded, "monthly");
             } else if (mostRecentUnemployment < 4.00 || mostRecentUnemployment > 6.00) {
-                unemployment = new DatabaseIndicatorObject("Unemployment Rate", mostRecentUnemployment, "yellow", dateRecordAdded, "monthly");
+                unemployment = new DatabaseIndicatorObject("Unemployment Rate", mostRecentUnemployment, "#ffc000", dateRecordAdded, "monthly");
             } else {
-                unemployment = new DatabaseIndicatorObject("Unemployment Rate", mostRecentUnemployment, "green", dateRecordAdded, "monthly");
+                unemployment = new DatabaseIndicatorObject("Unemployment Rate", mostRecentUnemployment, "lightgreen", dateRecordAdded, "monthly");
             }
             
             allIndicators.add(unemployment);
@@ -178,11 +178,11 @@ public class FetchMarketIndicators {
             double previousFedFundsRate = Float.parseFloat(allFedFundsRateQuarters[1].getValue());
 
             if (currentFedFundsRate > lastSevenYearsAvg) {
-                fedFundsRate = new DatabaseIndicatorObject("Fed Funds Rate", currentFedFundsRate, "red", dateRecordAdded, "monthly");
+                fedFundsRate = new DatabaseIndicatorObject("Fed Funds Rate", currentFedFundsRate, "lightcoral", dateRecordAdded, "monthly");
             } else if (currentFedFundsRate > previousFedFundsRate + .1) {
-                fedFundsRate = new DatabaseIndicatorObject("Fed Funds Rate", currentFedFundsRate, "yellow", dateRecordAdded, "monthly");
+                fedFundsRate = new DatabaseIndicatorObject("Fed Funds Rate", currentFedFundsRate, "#ffc000", dateRecordAdded, "monthly");
             } else {
-                fedFundsRate = new DatabaseIndicatorObject("Fed Funds Rate", currentFedFundsRate, "green", dateRecordAdded, "monthly");
+                fedFundsRate = new DatabaseIndicatorObject("Fed Funds Rate", currentFedFundsRate, "lightgreen", dateRecordAdded, "monthly");
             }
 
             allIndicators.add(fedFundsRate);
