@@ -45,11 +45,10 @@ public class registerUser {
         final String hashedPassword = passwordEncoder().encode(user.getPassword());
         try {
         final Connection connection = dataSource.getConnection();
-        PreparedStatement sql = connection.prepareStatement("INSERT INTO users (username, email, password, user_level) VALUES (?, ?, ?, ?)");
+        PreparedStatement sql = connection.prepareStatement("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
         sql.setString(1, user.getUsername());
         sql.setString(2, user.getEmail());
-        sql.setString(3, hashedPassword);
-        sql.setString(4, user.getUserLevel());    
+        sql.setString(3, hashedPassword);  
         sql.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

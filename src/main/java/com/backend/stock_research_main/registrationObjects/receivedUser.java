@@ -4,16 +4,14 @@ public class receivedUser {
     private String username;
     private String email;
     private String password;
-    private String userLevel;
 
     public receivedUser() {
     }
 
-    public receivedUser(String username, String email, String password, String userLevel) {
+    public receivedUser(String username, String email, String password) {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.userLevel = userLevel;
     }
 
     public String getUsername() {
@@ -28,10 +26,6 @@ public class receivedUser {
         return this.password;
     }
 
-    public String getUserLevel() {
-        return this.userLevel;
-    }
-
     public void setUsername(String username) {
         this.username = username;
     }
@@ -42,9 +36,5 @@ public class receivedUser {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public void setUserLevel(String userLevel) {
-        this.userLevel = userLevel;
     }
 }
