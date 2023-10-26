@@ -306,7 +306,7 @@ public class PostUserArticles {
 
     @CrossOrigin(origins = "http://localhost:4200")
     @PostMapping("/articles/stocks")
-    public static ResponseEntity<String> updateCustomArticles(@RequestBody String newStock) {
+    public static String updateCustomArticles(@RequestBody String newStock) {
         System.out.println(newStock);
 
         final DataSource datasource = createDataSource();
@@ -327,11 +327,11 @@ public class PostUserArticles {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            return ResponseEntity.ok("Error getting articles already in database");
+            return "Error getting articles already in database";
         }
 
         if (customArticleStocks.contains(newStock)) {
-            return ResponseEntity.ok("Stocks articles already in database");
+            return "Stocks articles already in database";
         } else {
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<NewsArticles> articleResponse = restTemplate.getForEntity(
@@ -346,7 +346,7 @@ public class PostUserArticles {
 
                 if (articleArray == null) {
                     System.out.println("no articles for " + newStock);
-                    return ResponseEntity.ok("No articles for " + newStock);
+                    return "No articles for " + newStock;
                 } else {
                     for (ArticleResponseObject article : articleArray) {
                         ArticleObject articleObject = new ArticleObject();
@@ -371,7 +371,7 @@ public class PostUserArticles {
                 }
                 if (articleObjects.isEmpty()) {
                     System.out.println("no articles for " + newStock);
-                    return ResponseEntity.ok("No articles for " + newStock);
+                    return "No articles for " + newStock;
                 } else {
                     articleObjects.sort(Comparator.comparing(ArticleObject::getRelevance));
                 }
@@ -403,11 +403,11 @@ public class PostUserArticles {
             }
             } catch (SQLException e) {
                 e.printStackTrace();
-                return ResponseEntity.ok("Error adding articles to database");
+                return "Error adding articles to database";
             }
         }
 
-        return ResponseEntity.ok("Articles added to database");
+        return "Articles added to database";
 
     }
 
