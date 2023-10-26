@@ -105,9 +105,7 @@ public class WatchlistServices {
         for (String item : items) {
             itemsList.add(item.trim());
         }
-        System.out.println(itemsList);
         String newWatchlist = itemsList.toString().replace("[", "{").replace("]", "}");
-        System.out.println(newWatchlist);
         try {
             final Connection connection = datasource.getConnection();
             connection.

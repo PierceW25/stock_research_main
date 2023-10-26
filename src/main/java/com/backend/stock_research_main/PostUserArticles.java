@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -301,6 +302,113 @@ public class PostUserArticles {
         }
 
         return ResponseEntity.ok("Articles added to database");
+    }
+
+    @CrossOrigin(origins = "http://localhost:4200")
+    @PostMapping("/articles/stocks")
+    public static ResponseEntity<String> updateCustomArticles(@RequestBody String newStock) {
+        System.out.println(newStock);
+
+        final DataSource datasource = createDataSource();
+
+        //Getting stocks already used to generate custom articles in db
+        final ArrayList<String> customArticleStocks = new ArrayList<String>();
+        final ArrayList<ArticleObject> articleObjects = new ArrayList<ArticleObject>();
+
+        try {
+            Connection conn = datasource.getConnection();
+            PreparedStatement getArticlesStocks = conn.prepareStatement(
+            "SELECT DISTINCT article_stock FROM all_news_articles WHERE category = ?");
+            getArticlesStocks.setString(1, "custom");
+            ResultSet articleStocks = getArticlesStocks.executeQuery();
+
+            while (articleStocks.next()) {
+                customArticleStocks.add(articleStocks.getString("article_stock"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return ResponseEntity.ok("Error getting articles already in database");
+        }
+
+        if (customArticleStocks.contains(newStock)) {
+            return ResponseEntity.ok("Stocks articles already in database");
+        } else {
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<NewsArticles> articleResponse = restTemplate.getForEntity(
+            "https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=" +
+            newStock +
+            "&limit=50&apikey=HGP8743EDTZFQ8HO",
+            NewsArticles.class);
+            NewsArticles articles = articleResponse.getBody();
+
+            if (articles != null) {
+                ArticleResponseObject[] articleArray = articles.getFeed();
+
+                if (articleArray == null) {
+                    System.out.println("no articles for " + newStock);
+                    return ResponseEntity.ok("No articles for " + newStock);
+                } else {
+                    for (ArticleResponseObject article : articleArray) {
+                        ArticleObject articleObject = new ArticleObject();
+                        articleObject.setTitle(article.getTitle());
+                        articleObject.setUrl(article.getUrl());
+                        articleObject.setTime_published(article.getTime_published());
+                        articleObject.setBanner_image(article.getBanner_image());
+                        articleObject.setSource(article.getSource());
+                        articleObject.setCategory("custom");
+
+                        TickerSentimentObject[] tickerSentimentArray = article.getTicker_sentiment();
+                        for (TickerSentimentObject tickerSentiment : tickerSentimentArray) {
+                            if (tickerSentiment.getTicker().equals(newStock.toUpperCase())) {
+                                articleObject.setRelevance(Float.parseFloat(tickerSentiment.getRelevance_score()));
+                                break;
+                            } else {
+                                articleObject.setRelevance(0.0f);
+                            }
+                        }
+                        articleObjects.add(articleObject);
+                    }
+                }
+                if (articleObjects.isEmpty()) {
+                    System.out.println("no articles for " + newStock);
+                    return ResponseEntity.ok("No articles for " + newStock);
+                } else {
+                    articleObjects.sort(Comparator.comparing(ArticleObject::getRelevance));
+                }
+            }
+
+            final ArrayList<ArticleObject> sortedArticles = new ArrayList<ArticleObject>(articleObjects.subList(0, 5));
+
+
+            try {
+            Connection conn = datasource.getConnection();
+            PreparedStatement addArticleStat = conn.prepareStatement(
+            "INSERT INTO all_news_articles (title, url, time_published, banner_image," + 
+            "source, category, relevance, article_stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+            );
+
+            if (articleObjects != null) {
+                for (ArticleObject article : sortedArticles) {
+                addArticleStat.setString(1, article.getTitle());
+                addArticleStat.setString(2, article.getUrl());
+                addArticleStat.setString(3, article.getTime_published());
+                addArticleStat.setString(4, article.getBanner_image());
+                addArticleStat.setString(5, article.getSource());
+                addArticleStat.setString(6, article.getCategory());
+                addArticleStat.setFloat(7, article.getRelevance());
+                addArticleStat.setString(8, newStock);
+                addArticleStat.executeUpdate();
+                }
+
+            }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return ResponseEntity.ok("Error adding articles to database");
+            }
+        }
+
+        return ResponseEntity.ok("Articles added to database");
+
     }
 
     private static DataSource createDataSource() {
