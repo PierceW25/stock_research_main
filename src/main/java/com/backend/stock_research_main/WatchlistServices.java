@@ -86,8 +86,6 @@ public class WatchlistServices {
                 watchlistsContainer.setWatchlist_two(watchlist_two_array);
                 watchlistsContainer.setWatchlist_three(watchlist_three_array);
             }
-
-            System.out.println(watchlistsContainer.getWatchlist_one());
         } catch (Exception e) {
             System.out.println(e);
         }

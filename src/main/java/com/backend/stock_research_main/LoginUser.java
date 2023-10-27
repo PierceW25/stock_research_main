@@ -54,7 +54,6 @@ public class LoginUser {
                     return new ResponseEntity<String>("Incorrect password", HttpStatus.OK);
                 }
             } else {
-                System.out.println("User not logged in");
                 return new ResponseEntity<String>("Email does not exist", HttpStatus.OK);
             }
         } catch (SQLException e) {

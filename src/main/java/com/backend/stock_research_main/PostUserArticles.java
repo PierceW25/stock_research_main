@@ -307,8 +307,6 @@ public class PostUserArticles {
     @CrossOrigin(origins = "http://localhost:4200")
     @PostMapping("/articles/stocks")
     public static String updateCustomArticles(@RequestBody String newStock) {
-        System.out.println(newStock);
-
         final DataSource datasource = createDataSource();
 
         //Getting stocks already used to generate custom articles in db

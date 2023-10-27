@@ -61,7 +61,6 @@ public class MarketIndicatorsEndpoint {
             if (!formattedIndicators.equals(null)) {
                 return new ResponseEntity<>(formattedIndicators, HttpStatus.OK);
             } else {
-                System.out.println("No market indicators found");
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);
             }
         } catch (SQLException e) {
