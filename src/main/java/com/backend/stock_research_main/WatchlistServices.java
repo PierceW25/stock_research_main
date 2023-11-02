@@ -180,5 +180,45 @@ public class WatchlistServices {
     }
 
 
+    @CrossOrigin(origins = "http://localhost:4200")
+    @PostMapping(path = "/userWatchlists/watchlistTitles/{email}")
+    public ResponseEntity<String> updateWatchlistTitles(@PathVariable String email, @RequestBody String[] watchlistTitles) {
+        final DataSource datasource = createDataSource();
+        try {
+            final Connection connection = datasource.getConnection();
+            final ResultSet userWatchlistsData = connection
+            .prepareStatement("SELECT watchlist_one_title, watchlist_two_title, watchlist_three_title, selected_list FROM userWatchlists WHERE email = '" + email + "';")
+            .executeQuery();
+
+            String selected_list = "";
+            String watchlistOneTitle = "";
+            String watchlistTwoTitle = "";
+            String watchlistThreeTitle = "";
+            while (userWatchlistsData.next()) {
+                selected_list = userWatchlistsData.getString("selected_list");
+                watchlistOneTitle = userWatchlistsData.getString("watchlist_one_title");
+                watchlistTwoTitle = userWatchlistsData.getString("watchlist_two_title");
+                watchlistThreeTitle = userWatchlistsData.getString("watchlist_three_title");
+            }
+
+            if (selected_list.equals(watchlistOneTitle)) {
+                connection.prepareStatement("UPDATE userWatchlists SET selected_list = '" + watchlistTitles[0] + "' WHERE email = '" + email + "';").execute();
+            } else if (selected_list.equals(watchlistTwoTitle)) {
+                connection.prepareStatement("UPDATE userWatchlists SET selected_list = '" + watchlistTitles[1] + "' WHERE email = '" + email + "';").execute();
+            } else if (selected_list.equals(watchlistThreeTitle)) {
+                connection.prepareStatement("UPDATE userWatchlists SET selected_list = '" + watchlistTitles[2] + "' WHERE email = '" + email + "';").execute();
+            }
+
+            connection.
+            prepareStatement("UPDATE userWatchlists SET watchlist_one_title = '" + watchlistTitles[0] + "', watchlist_two_title = '" + watchlistTitles[1] + "', watchlist_three_title = '" + watchlistTitles[2] + "' WHERE email = '" + email + "';")
+            .execute();
+            return new ResponseEntity<>("Watchlist titles updated", HttpStatus.OK);
+        } catch (Exception e) {
+            System.out.println(e);
+            return new ResponseEntity<>("Watchlist titles not updated", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
 
 }
