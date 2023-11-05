@@ -12,18 +12,28 @@ import javax.sql.DataSource;
 
 import org.postgresql.ds.PGSimpleDataSource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.backend.stock_research_main.registrationObjects.UpdatePasswordData;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 
 @RestController
 public class UpdateUserInfo {
 
     @Autowired
     private SendPasswordRecoveryEmail sendPasswordRecoveryEmail;
+
+    @Bean
+    public PasswordEncoder passwordEncoder2() {
+        return new BCryptPasswordEncoder();
+    }
     
     private static DataSource createDataSource() {
         final String url = "jdbc:postgresql://localhost:5432/stock_research?user=postgres&password=KylerFNFL2025!";
@@ -111,5 +121,54 @@ public class UpdateUserInfo {
         } catch (Exception e) {
             return ResponseEntity.ok("Error");
         } 
+    }
+
+
+    @CrossOrigin(origins = "http://localhost:4200")
+    @PostMapping(path = "/changePassword")
+    public ResponseEntity<String> updatePassword(@RequestBody UpdatePasswordData newPasswordData) {
+
+        final DataSource datasource = createDataSource();
+        final String hashedPassword = passwordEncoder2().encode(newPasswordData.getPassword());
+        String userEmail = "";
+        Boolean tokenValidated = false;
+
+        try {
+            final Connection conn = datasource.getConnection();
+            PreparedStatement findTokenSql = conn.prepareStatement("SELECT * FROM reset_password_values where token = ?");
+            findTokenSql.setString(1, newPasswordData.getToken());
+            final ResultSet foundTokenRow = findTokenSql.executeQuery();
+            Boolean tokenExists = false;
+
+            while (foundTokenRow.next()) {
+                tokenExists = true;
+                Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+                Timestamp expirationTime = foundTokenRow.getTimestamp("expiration_date");
+
+                if (currentTime.before(expirationTime)) {
+                    tokenValidated = true;
+                    userEmail = foundTokenRow.getString("email");
+                } else {
+                    return ResponseEntity.ok("Token is expired");
+                }
+            }
+
+            if (!tokenExists) {
+                return ResponseEntity.ok("Token does not exist");
+            }
+
+            if (tokenValidated) {
+                PreparedStatement replacePassword = conn.prepareStatement("UPDATE users set password = ? where email = ?");
+                replacePassword.setString(1, hashedPassword);
+                replacePassword.setString(2, userEmail);
+                replacePassword.executeUpdate();
+
+                return ResponseEntity.ok("Password updated");
+            } else {
+                return ResponseEntity.ok("Failed to update password");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.ok("Error");
+        }
     }
 }
