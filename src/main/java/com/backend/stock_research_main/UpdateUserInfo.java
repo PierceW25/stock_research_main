@@ -50,8 +50,8 @@ public class UpdateUserInfo {
             final Connection conn = dataSource.getConnection();
             PreparedStatement sql = conn.prepareStatement("SELECT * FROM USERS WHERE email = ?");
             sql.setString(1, email);
-            final ResultSet userSearchResult = sql.executeQuery();
-            Boolean userExists = false;
+            ResultSet userSearchResult = sql.executeQuery();
+            boolean userExists = false;
             while (userSearchResult.next()) {
                 userExists = true;
             }
@@ -149,12 +149,12 @@ public class UpdateUserInfo {
                     tokenValidated = true;
                     userEmail = foundTokenRow.getString("email");
                 } else {
-                    return ResponseEntity.ok("Token is expired");
+                    return ResponseEntity.ok("Token is expired,#c83f00");
                 }
             }
 
             if (!tokenExists) {
-                return ResponseEntity.ok("Token does not exist");
+                return ResponseEntity.ok("Token does not exist,#c83f00");
             }
 
             if (tokenValidated) {
@@ -163,12 +163,15 @@ public class UpdateUserInfo {
                 replacePassword.setString(2, userEmail);
                 replacePassword.executeUpdate();
 
-                return ResponseEntity.ok("Password updated");
+                return ResponseEntity.ok("Password updated,#00C805");
             } else {
-                return ResponseEntity.ok("Failed to update password");
+                return ResponseEntity.ok("Failed to update password,#c83f00");
             }
         } catch (Exception e) {
-            return ResponseEntity.ok("Error");
+            return ResponseEntity.ok("Try again later,#c83f00");
         }
+        /*#00C805, good
+         *#c83f00, bad
+          */
     }
 }
