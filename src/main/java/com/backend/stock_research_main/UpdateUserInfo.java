@@ -79,12 +79,12 @@ public class UpdateUserInfo {
                 sql.executeUpdate();
 
                 sendPasswordRecoveryEmail.sendRecoveryEmail(email, token);
-                return ResponseEntity.ok("Password recovery email sent");
+                return ResponseEntity.ok("Email sent,#00C805");
             } else {
-                return ResponseEntity.ok("User does not exist");
+                return ResponseEntity.ok("No account with that email,#c83f00");
             }
         } catch (Exception e) {
-            return ResponseEntity.ok("Error");
+            return ResponseEntity.ok("Try again later,#c83f00");
         }
     }
 
