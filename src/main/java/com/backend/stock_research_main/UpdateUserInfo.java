@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.backend.stock_research_main.registrationObjects.UpdateEmailData;
 import com.backend.stock_research_main.registrationObjects.UpdatePasswordData;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,10 @@ import org.springframework.context.annotation.Bean;
 public class UpdateUserInfo {
 
     @Autowired
-    private SendPasswordRecoveryEmail sendPasswordRecoveryEmail;
+    private SendPasswordRecoveryEmail sendPasswordRecoveryEmail = new SendPasswordRecoveryEmail();
+
+    @Autowired
+    private SendEmailChangeEmail sendEmailChangeEmail = new SendEmailChangeEmail();
 
     @Bean
     public PasswordEncoder passwordEncoder2() {
@@ -90,8 +94,56 @@ public class UpdateUserInfo {
 
 
     @CrossOrigin(origins = "http://localhost:4200")
+    @PostMapping(path = "/updateEmailRequest")
+    public ResponseEntity<String> updateEmailRequest(@RequestBody String email) {
+        final DataSource dataSource = createDataSource();
+        try {
+            final Connection conn = dataSource.getConnection();
+            PreparedStatement sql = conn.prepareStatement("SELECT * FROM USERS WHERE email = ?");
+            sql.setString(1, email);
+            ResultSet userSearchResult = sql.executeQuery();
+            boolean userExists = false;
+            while (userSearchResult.next()) {
+                userExists = true;
+            }
+
+            if (userExists) {
+                final SecureRandom random = new SecureRandom();
+                final Base64.Encoder encoder = Base64.getUrlEncoder();
+
+                byte[] randomBytes = new byte[24];
+                random.nextBytes(randomBytes);
+                String token = encoder.encodeToString(randomBytes);
+
+                Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+                Date originalDate = new Date(timestamp.getTime());
+
+                long tenMinutesInMilliseconds = 600000;
+                long newTimeInMilliseconds = originalDate.getTime() + tenMinutesInMilliseconds;
+                Date newDate = new Date(newTimeInMilliseconds);
+                Timestamp token_expires = new Timestamp(newDate.getTime());
+
+                sql = conn.prepareStatement("INSERT INTO reset_password_values (email, token, expiration_date) VALUES (?, ?, ?)");
+                sql.setString(1, email);
+                sql.setString(2, token);
+                sql.setTimestamp(3, token_expires);
+                sql.executeUpdate();
+
+                sendEmailChangeEmail.sendRecoveryEmail(email, token);
+                return ResponseEntity.ok("Email sent,#00C805");
+            } else {
+                return ResponseEntity.ok("No account with that email,#c83f00");
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+            return ResponseEntity.ok("Try again later,#c83f00");
+        }
+    }
+
+
+    @CrossOrigin(origins = "http://localhost:4200")
     @PostMapping(path = "/validateToken")
-    public ResponseEntity<String> validateForgotPasswordToken(@RequestBody String token) {
+    public ResponseEntity<String> validateRecoveryToken(@RequestBody String token) {
         final DataSource dataSource = createDataSource();
 
         try {
@@ -170,8 +222,53 @@ public class UpdateUserInfo {
         } catch (Exception e) {
             return ResponseEntity.ok("Try again later,#c83f00");
         }
-        /*#00C805, good
-         *#c83f00, bad
-          */
+    }
+
+
+    @CrossOrigin(origins = "http://localhost:4200")
+    @PostMapping(path = "/changeEmail")
+    public ResponseEntity<String> updateEmail(@RequestBody UpdateEmailData newEmailData) {
+
+        final DataSource datasource = createDataSource();
+        String userEmail = "";
+        Boolean tokenValidated = false;
+
+        try {
+            final Connection conn = datasource.getConnection();
+            PreparedStatement findTokenSql = conn.prepareStatement("SELECT * FROM reset_password_values where token = ?");
+            findTokenSql.setString(1, newEmailData.getToken());
+            final ResultSet foundTokenRow = findTokenSql.executeQuery();
+            Boolean tokenExists = false;
+
+            while (foundTokenRow.next()) {
+                tokenExists = true;
+                Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+                Timestamp expirationTime = foundTokenRow.getTimestamp("expiration_date");
+
+                if (currentTime.before(expirationTime)) {
+                    tokenValidated = true;
+                    userEmail = foundTokenRow.getString("email");
+                } else {
+                    return ResponseEntity.ok("Token is expired,#c83f00");
+                }
+            }
+
+            if (!tokenExists) {
+                return ResponseEntity.ok("Token does not exist,#c83f00");
+            }
+
+            if (tokenValidated) {
+                PreparedStatement replaceEmail = conn.prepareStatement("UPDATE users set email = ? where email = ?");
+                replaceEmail.setString(1, newEmailData.getEmail());
+                replaceEmail.setString(2, userEmail);
+                replaceEmail.executeUpdate();
+
+                return ResponseEntity.ok("Email updated,#00C805");
+            } else {
+                return ResponseEntity.ok("Failed to update Email,#c83f00");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.ok("Try again later,#c83f00");
+        }
     }
 }
