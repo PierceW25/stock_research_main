@@ -83,7 +83,7 @@ public class UpdateUserInfo {
                 sql.executeUpdate();
 
                 sendPasswordRecoveryEmail.sendRecoveryEmail(email, token);
-                return ResponseEntity.ok("Email sent,#00C805");
+                return ResponseEntity.ok("Recovery email sent,#00C805");
             } else {
                 return ResponseEntity.ok("No account with that email,#c83f00");
             }
@@ -130,7 +130,7 @@ public class UpdateUserInfo {
                 sql.executeUpdate();
 
                 sendEmailChangeEmail.sendRecoveryEmail(email, token);
-                return ResponseEntity.ok("Email sent,#00C805");
+                return ResponseEntity.ok("Recovery email sent,#00C805");
             } else {
                 return ResponseEntity.ok("No account with that email,#c83f00");
             }
