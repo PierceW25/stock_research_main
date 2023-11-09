@@ -94,6 +94,54 @@ public class UpdateUserInfo {
 
 
     @CrossOrigin(origins = "http://localhost:4200")
+    @PostMapping(path = "/deleteAccountRequest")
+    public ResponseEntity<String> deleteAccountRequest(@RequestBody String email) {
+        final DataSource dataSource = createDataSource();
+
+        try {
+            final Connection conn = dataSource.getConnection();
+            PreparedStatement sql = conn.prepareStatement("SELECT * FROM USERS WHERE email = ?");
+            sql.setString(1, email);
+            ResultSet userSearchResult = sql.executeQuery();
+            boolean userExists = false;
+            while (userSearchResult.next()) {
+                userExists = true;
+            }
+
+            if (userExists) {
+                final SecureRandom random = new SecureRandom();
+                final Base64.Encoder encoder = Base64.getUrlEncoder();
+
+                byte[] randomBytes = new byte[24];
+                random.nextBytes(randomBytes);
+                String token = encoder.encodeToString(randomBytes);
+
+                Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+                Date originalDate = new Date(timestamp.getTime());
+
+                long tenMinutesInMilliseconds = 600000;
+                long newTimeInMilliseconds = originalDate.getTime() + tenMinutesInMilliseconds;
+                Date newDate = new Date(newTimeInMilliseconds);
+                Timestamp token_expires = new Timestamp(newDate.getTime());
+
+                sql = conn.prepareStatement("INSERT INTO reset_password_values (email, token, expiration_date) VALUES (?, ?, ?)");
+                sql.setString(1, email);
+                sql.setString(2, token);
+                sql.setTimestamp(3, token_expires);
+                sql.executeUpdate();
+
+                sendPasswordRecoveryEmail.sendRecoveryEmail(email, token);
+                return ResponseEntity.ok("User validation email sent,#00C805");
+            } else {
+                return ResponseEntity.ok("No account with that email,#c83f00");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.ok("Try again later,#c83f00");
+        }
+    }
+
+
+    @CrossOrigin(origins = "http://localhost:4200")
     @PostMapping(path = "/updateEmailRequest")
     public ResponseEntity<String> updateEmailRequest(@RequestBody String email) {
         final DataSource dataSource = createDataSource();
