@@ -311,11 +311,17 @@ public class UpdateUserInfo {
                 replaceEmail.setString(2, userEmail);
                 replaceEmail.executeUpdate();
 
+                replaceEmail = conn.prepareStatement("UPDATE userWatchlists set email = ? where email = ?");
+                replaceEmail.setString(1, newEmailData.getEmail());
+                replaceEmail.setString(2, userEmail);
+                replaceEmail.executeUpdate();
+
                 return ResponseEntity.ok("Email updated,#00C805");
             } else {
                 return ResponseEntity.ok("Failed to update Email,#c83f00");
             }
         } catch (Exception e) {
+            System.out.println(e);
             return ResponseEntity.ok("Try again later,#c83f00");
         }
     }
