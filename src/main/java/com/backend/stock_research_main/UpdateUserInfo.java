@@ -34,6 +34,9 @@ public class UpdateUserInfo {
     @Autowired
     private SendEmailChangeEmail sendEmailChangeEmail = new SendEmailChangeEmail();
 
+    @Autowired
+    private SendDeleteAccountEmail sendDeleteAccountEmail = new SendDeleteAccountEmail();
+
     @Bean
     public PasswordEncoder passwordEncoder2() {
         return new BCryptPasswordEncoder();
@@ -130,10 +133,10 @@ public class UpdateUserInfo {
                 sql.setTimestamp(3, token_expires);
                 sql.executeUpdate();
 
-                sendPasswordRecoveryEmail.sendRecoveryEmail(email, token);
+                sendDeleteAccountEmail.sendRecoveryEmail(email, token);
                 return ResponseEntity.ok("User validation email sent,#00C805");
             } else {
-                return ResponseEntity.ok("No account with that email,#c83f00");
+                return ResponseEntity.ok("Try again later,#c83f00");
             }
         } catch (Exception e) {
             return ResponseEntity.ok("Try again later,#c83f00");
