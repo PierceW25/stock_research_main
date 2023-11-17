@@ -19,8 +19,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.backend.stock_research_main.registrationObjects.UpdateEmailData;
+import com.backend.stock_research_main.registrationObjects.TokenAndEmailUserData;
 import com.backend.stock_research_main.registrationObjects.UpdatePasswordData;
+import com.backend.stock_research_main.registrationObjects.ValidationMessageAndEmail;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -194,8 +195,9 @@ public class UpdateUserInfo {
 
     @CrossOrigin(origins = "http://localhost:4200")
     @PostMapping(path = "/validateToken")
-    public ResponseEntity<String> validateRecoveryToken(@RequestBody String token) {
+    public ResponseEntity<ValidationMessageAndEmail> validateRecoveryToken(@RequestBody String token) {
         final DataSource dataSource = createDataSource();
+        ValidationMessageAndEmail validationObject = new ValidationMessageAndEmail();
 
         try {
             final Connection conn = dataSource.getConnection();
@@ -209,21 +211,27 @@ public class UpdateUserInfo {
                 Timestamp currentTime = new Timestamp(System.currentTimeMillis());
                 Timestamp expirationTime = foundTokenRow.getTimestamp("expiration_date");
                 String userEmail = foundTokenRow.getString("email");
+                validationObject.setEmail(userEmail);
 
                 if (currentTime.before(expirationTime)) {
-                    return ResponseEntity.ok("Token is valid," + userEmail);
+                    validationObject.setTokenMessage("Token is valid");
+                    return ResponseEntity.ok(validationObject);
                 } else {
-                    return ResponseEntity.ok("Token is expired");
+                    validationObject.setTokenMessage("Token is expired");
+                    return ResponseEntity.ok(validationObject);
                 }
             }
 
             if (!tokenExists) {
-                return ResponseEntity.ok("Token does not exist");
+                validationObject.setTokenMessage("Token does not exist");
+                return ResponseEntity.ok(validationObject);
             }
 
-            return ResponseEntity.ok("Something went wrong");
+            validationObject.setTokenMessage("Something went wrong");
+            return ResponseEntity.ok(validationObject);
         } catch (Exception e) {
-            return ResponseEntity.ok("Error");
+            validationObject.setTokenMessage("Error");
+            return ResponseEntity.ok(validationObject);
         } 
     }
 
@@ -279,7 +287,7 @@ public class UpdateUserInfo {
 
     @CrossOrigin(origins = "http://localhost:4200")
     @PostMapping(path = "/changeEmail")
-    public ResponseEntity<String> updateEmail(@RequestBody UpdateEmailData newEmailData) {
+    public ResponseEntity<String> updateEmail(@RequestBody TokenAndEmailUserData newEmailData) {
 
         final DataSource datasource = createDataSource();
         String userEmail = "";

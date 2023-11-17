@@ -1,12 +1,12 @@
 package com.backend.stock_research_main.registrationObjects;
 
-public class UpdateEmailData {
+public class TokenAndEmailUserData {
     private String email;
     private String token;
 
-    public UpdateEmailData() {}
+    public TokenAndEmailUserData() {}
 
-    public UpdateEmailData(String email, String token) {
+    public TokenAndEmailUserData(String email, String token) {
         this.email = email;
         this.token = token;
     }
@@ -21,7 +21,7 @@ public class UpdateEmailData {
     public void setEmail(String email) {
         this.email = email;
     }
-    public void setToken(String token) {
+    public void setTokenMessage(String token) {
         this.token = token;
     }
 }
