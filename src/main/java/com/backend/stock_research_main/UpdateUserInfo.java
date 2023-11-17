@@ -208,9 +208,10 @@ public class UpdateUserInfo {
                 tokenExists = true;
                 Timestamp currentTime = new Timestamp(System.currentTimeMillis());
                 Timestamp expirationTime = foundTokenRow.getTimestamp("expiration_date");
+                String userEmail = foundTokenRow.getString("email");
 
                 if (currentTime.before(expirationTime)) {
-                    return ResponseEntity.ok("Token is valid");
+                    return ResponseEntity.ok("Token is valid," + userEmail);
                 } else {
                     return ResponseEntity.ok("Token is expired");
                 }
