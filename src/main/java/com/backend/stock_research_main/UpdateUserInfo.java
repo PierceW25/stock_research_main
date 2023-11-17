@@ -337,4 +337,59 @@ public class UpdateUserInfo {
             return ResponseEntity.ok("Try again later,#c83f00");
         }
     }
+
+    @CrossOrigin(origins = "http://localhost:4200")
+    @PostMapping(path = "/deleteAccount")
+    public ResponseEntity<String> deleteAccount(@RequestBody String token) {
+        final DataSource datasource = createDataSource();
+        String userEmail = "";
+        Boolean tokenValidated = false;
+
+        try {
+            final Connection conn = datasource.getConnection();
+            PreparedStatement findToken = conn.prepareStatement("Select * from reset_password_values where token = ?");
+            findToken.setString(1, token);
+            ResultSet tokenSearch = findToken.executeQuery();
+            Boolean tokenExists = false;
+
+            while (tokenSearch.next()) {
+                tokenExists = true;
+                Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+                Timestamp expirationTime = tokenSearch.getTimestamp("expiration_date");
+
+                if (currentTime.before(expirationTime)) {
+                    tokenValidated = true;
+                    userEmail = tokenSearch.getString("email");
+                } else {
+                    return ResponseEntity.ok("Token is expired,#c83f00");
+                }
+            }
+
+            if (!tokenExists) {
+                return ResponseEntity.ok("Token does not exist,#c83f00");
+            }
+
+            if (tokenValidated) {
+                PreparedStatement deleteUser = conn.prepareStatement("Delete from users where email = ?");
+                PreparedStatement deleteUserWatchlists = conn.prepareStatement("Delete from userWatchlists where email = ?");
+                deleteUser.setString(1, userEmail);
+                deleteUserWatchlists.setString(1, userEmail);
+
+                deleteUser.executeUpdate();
+                deleteUserWatchlists.executeUpdate();
+
+                PreparedStatement deleteToken = conn.prepareStatement("delete from reset_password_values where token = ?");
+                deleteToken.setString(1, token);
+                deleteToken.executeUpdate();
+
+                return ResponseEntity.ok("Your account has been deleted,#00C805");
+            } else {
+                return ResponseEntity.ok("Please try again later,#c83f00");
+            }
+        }
+        catch (Exception e) {
+            System.out.println(e);
+            return ResponseEntity.ok("Please try again later,#c83f00");
+        }
+    }
 }
