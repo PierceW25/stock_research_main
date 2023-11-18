@@ -318,6 +318,14 @@ public class UpdateUserInfo {
             }
 
             if (tokenValidated) {
+                PreparedStatement checkEmail = conn.prepareStatement("select * from users where email = ?");
+                checkEmail.setString(1,newEmailData.getEmail());
+                ResultSet emailSearch = checkEmail.executeQuery();
+
+                while (emailSearch.next()) {
+                    return ResponseEntity.ok("Email is already connected to an account,#c83f00");
+                }
+
                 PreparedStatement replaceEmail = conn.prepareStatement("UPDATE users set email = ? where email = ?");
                 replaceEmail.setString(1, newEmailData.getEmail());
                 replaceEmail.setString(2, userEmail);
